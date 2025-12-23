@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ceramic Studio & Color Lab</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .nav-active { color: #0ea5e9; border-bottom: 2px solid #0ea5e9; font-weight: bold; }
+        input[type="range"] { accent-color: #0ea5e9; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 10px; }
+    </style>
+</head>
+<body class="bg-stone-100 text-stone-800 min-h-screen font-sans">
+
+    <!-- Navigazione -->
+    <nav class="bg-white border-b border-stone-200 sticky top-0 z-50 shadow-sm">
+        <div class="max-w-6xl mx-auto px-4 flex space-x-8 h-14 items-center overflow-x-auto whitespace-nowrap">
+            <button onclick="switchTab('calc')" id="nav-calc" class="tab-btn nav-active text-sm">🎨 Smalto & Mix</button>
+            <button onclick="switchTab('tracker')" id="nav-tracker" class="tab-btn text-sm text-stone-500">🏺 Produzione</button>
+            <button onclick="switchTab('costs')" id="nav-costs" class="tab-btn text-sm text-stone-500">💰 Calcolo Costi</button>
+        </div>
+    </nav>
+
+    <main class="max-w-6xl mx-auto px-4 py-8">
+
+        <!-- SEZIONE: SMALTO & COLOR LAB -->
+        <div id="tab-calc" class="tab-content active">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                
+                <!-- 1. Calcolatore Bianco Base -->
+                <div class="bg-white p-6 rounded-3xl shadow-sm border border-stone-200 h-fit">
+                    <h3 class="text-xl font-bold mb-6 flex items-center gap-2">⚪ Bianco Colorobbia</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-bold text-stone-400 uppercase mb-2">Polvere Smalto (g)</label>
+                            <input type="number" id="powderInput" value="1000" class="w-full text-2xl font-bold p-3 bg-stone-50 border border-stone-200 rounded-2xl outline-none" oninput="saveAndRefresh()">
+                        </div>
+                        <div>
+                            <div class="flex justify-between mb-2">
+                                <label class="block text-xs font-bold text-stone-400 uppercase">Viscosità (Rapporto)</label>
+                                <span id="viscosityLabel" class="text-sm font-bold text-blue-600 font-mono">0.70</span>
+                            </div>
+                            <input type="range" id="ratioSlider" min="0.55" max="0.85" step="0.01" value="0.70" class="w-full" oninput="saveAndRefresh()">
+                        </div>
+                        <div class="bg-blue-600 p-6 rounded-2xl text-white text-center shadow-md">
+                            <p class="text-blue-100 text-xs font-bold uppercase mb-1">Acqua da Aggiungere</p>
+                            <span id="waterResult" class="text-4xl font-black">700</span><span class="text-lg ml-1">g</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. Laboratorio Colori (MULTI-COLORE) -->
+                <div class="bg-white p-6 rounded-3xl shadow-sm border border-stone-200 flex flex-col min-h-[500px]">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-xl font-bold">🌈 Mix di Colori</h3>
+                        <button onclick="addColorRow()" class="text-xs font-bold bg-blue-50 text-blue-600 px-3 py-1.5 rounded-full hover:bg-blue-100 transition-colors">+ Aggiungi Colore</button>
+                    </div>
+                    
+                    <p class="text-[10px] text-stone-400 mb-6 uppercase font-bold tracking-widest">Crea la tua ricetta personalizzata</p>
+                    
+                    <div id="colorMixList" class="space-y-3 mb-6 flex-1 overflow-y-auto max-h-[400px] pr-2 custom-scrollbar">
+                        <!-- Righe aggiunte dinamicamente qui -->
+                    </div>
+
+                    <div class="mt-4 bg-stone-900 text-white p-6 rounded-2xl flex flex-col items-center relative overflow-hidden shadow-xl">
+                        <div class="absolute top-0 right-0 p-3 opacity-10">
+                            <svg class="w-20 h-20 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M12 3a9 9 0 00-9 9 9 9 0 009 9 9 9 0 009-9 9 9 0 00-9-9zm0 16a7 7 0 110-14 7 7 0 010 14z"/></svg>
+                        </div>
+                        <p class="text-[10px] font-bold text-stone-400 uppercase mb-4 tracking-widest relative z-10">Risultato per <span id="totalMixGrams" class="text-blue-400">0</span>g Totali</p>
+                        <div id="mixPreview" class="w-20 h-20 rounded-full shadow-2xl border-4 border-white mb-2 relative z-10 transition-all duration-700"></div>
+                        <span id="mixHex" class="text-[10px] font-mono font-bold text-stone-500 relative z-10">#000000</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SEZIONE: PRODUZIONE -->
+        <div id="tab-tracker" class="tab-content">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold">Registro Produzione</h2>
+                <button onclick="showAddModal()" class="bg-stone-900 text-white px-4 py-2 rounded-xl text-sm font-bold shadow-lg">+ Nuovo</button>
+            </div>
+            <div id="piecesContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+        </div>
+
+        <!-- SEZIONE: COSTI -->
+        <div id="tab-costs" class="tab-content">
+            <div class="max-w-xl mx-auto bg-white p-8 rounded-3xl border border-stone-200 shadow-xl">
+                <h2 class="text-2xl font-bold mb-6 text-center">💰 Costi Materiali</h2>
+                <div class="space-y-4">
+                    <div class="bg-stone-50 p-4 rounded-2xl">
+                        <label class="block text-xs font-bold text-stone-400 uppercase mb-2">Prezzo Argilla (€/kg)</label>
+                        <input type="number" id="clayPrice" value="1.50" step="0.10" class="w-full bg-transparent text-xl font-bold outline-none" oninput="saveAndRefresh()">
+                    </div>
+                    <div class="bg-stone-50 p-4 rounded-2xl">
+                        <label class="block text-xs font-bold text-stone-400 uppercase mb-2">Prezzo Smalto (€/kg)</label>
+                        <input type="number" id="glazePrice" value="15.00" step="0.50" class="w-full bg-transparent text-xl font-bold outline-none" oninput="saveAndRefresh()">
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-stone-50 p-4 rounded-2xl">
+                            <label class="block text-[10px] font-bold text-stone-400 uppercase mb-1">Peso (g)</label>
+                            <input type="number" id="pieceWeight" value="500" class="w-full bg-transparent text-lg font-bold outline-none" oninput="saveAndRefresh()">
+                        </div>
+                        <div class="bg-stone-50 p-4 rounded-2xl">
+                            <label class="block text-[10px] font-bold text-stone-400 uppercase mb-1">Cottura (€)</label>
+                            <input type="number" id="firingCost" value="1.20" class="w-full bg-transparent text-lg font-bold outline-none" oninput="saveAndRefresh()">
+                        </div>
+                    </div>
+                    <div class="pt-6">
+                        <div class="bg-stone-900 text-white p-8 rounded-3xl text-center shadow-lg">
+                            <span class="text-xs font-bold uppercase text-stone-400 mb-2 block tracking-widest">Costo Finale Stimato</span>
+                            <span id="totalCost" class="text-5xl font-black text-blue-400">€ 0.00</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal Progetto -->
+    <div id="addModal" class="fixed inset-0 bg-black/60 hidden z-[100] flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl p-8 w-full max-w-md shadow-2xl">
+            <h3 class="text-2xl font-bold mb-6">Nuovo Progetto</h3>
+            <div class="space-y-4">
+                <input type="text" id="pieceName" placeholder="Nome Modello" class="w-full p-4 bg-stone-50 border border-stone-200 rounded-2xl outline-none">
+                <input type="text" id="pieceClay" placeholder="Tipo di Argilla" class="w-full p-4 bg-stone-50 border border-stone-200 rounded-2xl outline-none">
+                <div class="flex gap-4 pt-4">
+                    <button onclick="closeAddModal()" class="flex-1 py-3 text-stone-500 font-bold">Annulla</button>
+                    <button onclick="addPiece()" class="flex-1 py-3 bg-blue-600 text-white rounded-2xl font-bold">Crea</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const STEPS = ["Modellazione", "Asciugatura", "Biscotto", "Decoro", "Smaltatura", "Cottura II", "Pronto"];
+        const BASE_COLORS = [
+            { id: "#ffffff", name: "Bianco" },
+            { id: "#fef08a", name: "BLS-008900 (Limoncello)" },
+            { id: "#ef4444", name: "BLS945 (Tomato)" },
+            { id: "#2563eb", name: "Blu Cobalto" },
+            { id: "#16a34a", name: "Verde Rame" },
+            { id: "#ea580c", name: "Arancio Selenio" },
+            { id: "#7c2d12", name: "Marrone Ferro" },
+            { id: "#171717", name: "Nero Manganese" }
+        ];
+
+        let state = {
+            pieces: [],
+            mixRows: [
+                { color: "#ffffff", grams: 500 },
+                { color: "#2563eb", grams: 500 }
+            ],
+            settings: {
+                powder: 1000,
+                ratio: 0.70,
+                clayPrice: 1.50,
+                glazePrice: 15.00,
+                pieceWeight: 500,
+                firingCost: 1.20
+            }
+        };
+
+        // --- GESTIONE RIGHE COLORE ---
+        function addColorRow(color = "#ffffff", grams = 100) {
+            const id = Date.now() + Math.random();
+            const container = document.getElementById('colorMixList');
+            
+            const row = document.createElement('div');
+            row.className = "flex gap-2 items-center bg-stone-50 p-3 rounded-2xl border border-stone-100 group animate-in fade-in duration-300";
+            row.innerHTML = `
+                <select class="flex-1 p-2 bg-white border border-stone-200 rounded-xl text-xs outline-none color-select" onchange="saveAndRefresh()">
+                    ${BASE_COLORS.map(c => `<option value="${c.id}" ${c.id === color ? 'selected' : ''}>${c.name}</option>`).join('')}
+                </select>
+                <div class="flex items-center gap-2">
+                    <input type="number" class="w-20 p-2 border border-stone-200 rounded-xl text-center font-bold text-sm gram-input" value="${grams}" oninput="saveAndRefresh()">
+                    <span class="text-[10px] text-stone-400 font-bold uppercase">g</span>
+                </div>
+                <button onclick="this.parentElement.remove(); saveAndRefresh();" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-red-50 text-stone-300 hover:text-red-500 transition-colors">×</button>
+            `;
+            container.appendChild(row);
+            saveAndRefresh();
+        }
+
+        // --- PERSISTENZA ---
+        function loadData() {
+            const savedState = localStorage.getItem('ceramic_studio_v4_multi');
+            if (savedState) {
+                state = JSON.parse(savedState);
+                applyStateToUI();
+            } else {
+                // Initialize default rows if no saved data
+                state.mixRows.forEach(row => addColorRow(row.color, row.grams));
+            }
+        }
+
+        function saveData() {
+            // Aggiorna mixRows estraendo i valori dalla UI
+            const selects = document.querySelectorAll('.color-select');
+            const inputs = document.querySelectorAll('.gram-input');
+            state.mixRows = [];
+            selects.forEach((sel, i) => {
+                state.mixRows.push({ color: sel.value, grams: parseFloat(inputs[i].value) || 0 });
+            });
+
+            state.settings = {
+                powder: document.getElementById('powderInput').value,
+                ratio: document.getElementById('ratioSlider').value,
+                clayPrice: document.getElementById('clayPrice').value,
+                glazePrice: document.getElementById('glazePrice').value,
+                pieceWeight: document.getElementById('pieceWeight').value,
+                firingCost: document.getElementById('firingCost').value
+            };
+            localStorage.setItem('ceramic_studio_v4_multi', JSON.stringify(state));
+        }
+
+        function applyStateToUI() {
+            const s = state.settings;
+            document.getElementById('powderInput').value = s.powder || 1000;
+            document.getElementById('ratioSlider').value = s.ratio || 0.70;
+            document.getElementById('clayPrice').value = s.clayPrice || 1.50;
+            document.getElementById('glazePrice').value = s.glazePrice || 15.00;
+            document.getElementById('pieceWeight').value = s.pieceWeight || 500;
+            document.getElementById('firingCost').value = s.firingCost || 1.20;
+            
+            const container = document.getElementById('colorMixList');
+            container.innerHTML = "";
+            state.mixRows.forEach(row => addColorRow(row.color, row.grams));
+            
+            renderPieces();
+        }
+
+        function saveAndRefresh() {
+            saveData();
+            updateCalculations();
+        }
+
+        // --- LOGICA UI ---
+        function switchTab(id) {
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('nav-active', 'text-stone-500'));
+            document.getElementById(`tab-${id}`).classList.add('active');
+            document.getElementById(`nav-${id}`).classList.add('nav-active');
+        }
+
+        function hexToRgb(hex) {
+            const r = parseInt(hex.slice(1, 3), 16);
+            const g = parseInt(hex.slice(3, 5), 16);
+            const b = parseInt(hex.slice(5, 7), 16);
+            return { r, g, b };
+        }
+
+        function updateCalculations() {
+            // Acqua
+            const powder = parseFloat(document.getElementById('powderInput').value) || 0;
+            const ratio = parseFloat(document.getElementById('ratioSlider').value);
+            document.getElementById('waterResult').textContent = Math.round(powder * ratio);
+            document.getElementById('viscosityLabel').textContent = ratio.toFixed(2);
+
+            // Mix Multi-Colore
+            let totalR = 0, totalG = 0, totalB = 0, totalGrams = 0;
+            
+            state.mixRows.forEach(row => {
+                const rgb = hexToRgb(row.color);
+                totalR += rgb.r * row.grams;
+                totalG += rgb.g * row.grams;
+                totalB += rgb.b * row.grams;
+                totalGrams += row.grams;
+            });
+
+            document.getElementById('totalMixGrams').textContent = Math.round(totalGrams);
+
+            let finalHex = "#E5E7EB";
+            if (totalGrams > 0) {
+                const r = Math.round(totalR / totalGrams);
+                const g = Math.round(totalGrams > 0 ? totalG/totalGrams : 0);
+                const b = Math.round(totalGrams > 0 ? totalB/totalGrams : 0);
+                finalHex = "#" + [r, g, b].map(x => x.toString(16).padStart(2, '0')).join('').toUpperCase();
+            }
+            
+            document.getElementById('mixPreview').style.backgroundColor = finalHex;
+            document.getElementById('mixHex').textContent = finalHex;
+
+            // Costi
+            const weight = parseFloat(document.getElementById('pieceWeight').value) || 0;
+            const total = ((weight / 1000) * parseFloat(document.getElementById('clayPrice').value)) + 
+                          ((weight / 1000) * 0.1 * parseFloat(document.getElementById('glazePrice').value)) + 
+                          parseFloat(document.getElementById('firingCost').value);
+            document.getElementById('totalCost').textContent = `€ ${total.toFixed(2)}`;
+        }
+
+        // --- TRACKER PROGETTI ---
+        function showAddModal() { document.getElementById('addModal').classList.remove('hidden'); }
+        function closeAddModal() { document.getElementById('addModal').classList.add('hidden'); }
+
+        function addPiece() {
+            const name = document.getElementById('pieceName').value;
+            const clay = document.getElementById('pieceClay').value;
+            if (!name) return;
+            state.pieces.unshift({ id: Date.now(), name, clay, step: 0 });
+            document.getElementById('pieceName').value = '';
+            document.getElementById('pieceClay').value = '';
+            saveAndRefresh();
+            closeAddModal();
+        }
+
+        function updateStep(id, dir) {
+            const p = state.pieces.find(x => x.id === id);
+            if (p) {
+                p.step = Math.max(0, Math.min(STEPS.length - 1, p.step + dir));
+                saveAndRefresh();
+            }
+        }
+
+        function deletePiece(id) {
+            state.pieces = state.pieces.filter(p => p.id !== id);
+            saveAndRefresh();
+        }
+
+        function renderPieces() {
+            const cont = document.getElementById('piecesContainer');
+            if (!cont) return;
+            if (state.pieces.length === 0) {
+                cont.innerHTML = `<div class="col-span-full text-center py-20 bg-white rounded-3xl border-2 border-dashed border-stone-200 text-stone-400">Nessun progetto attivo.</div>`;
+                return;
+            }
+            cont.innerHTML = state.pieces.map(p => `
+                <div class="bg-white p-6 rounded-3xl border border-stone-200 shadow-sm transition-all hover:shadow-md">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <h4 class="font-bold text-stone-900">${p.name}</h4>
+                            <p class="text-[10px] text-stone-400 font-extrabold uppercase">${p.clay}</p>
+                        </div>
+                        <button onclick="deletePiece(${p.id})" class="text-stone-300 hover:text-red-500">×</button>
+                    </div>
+                    <div class="h-1.5 bg-stone-100 rounded-full mb-6">
+                        <div class="h-full bg-blue-500 rounded-full transition-all duration-700" style="width: ${(p.step/6)*100}%"></div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="updateStep(${p.id},-1)" class="flex-1 py-2 text-xs border rounded-xl hover:bg-stone-50 transition-colors">←</button>
+                        <span class="text-[10px] font-bold text-blue-500 uppercase px-1 text-center flex-1">${STEPS[p.step]}</span>
+                        <button onclick="updateStep(${p.id},1)" class="flex-1 py-2 text-xs bg-stone-900 text-white rounded-xl hover:bg-stone-800 transition-colors">→</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        window.onload = () => {
+            loadData();
+            updateCalculations();
+        };
+    </script>
+</body>
+</html>
