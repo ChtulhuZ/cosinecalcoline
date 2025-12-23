@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ceramic Studio & Color Lab</title>
+    <title>Ceramic Studio & Color Lab Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .tab-content { display: none; }
@@ -13,6 +13,8 @@
         .custom-scrollbar::-webkit-scrollbar { width: 6px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 10px; }
+        /* Migliore leggibilità delle select su mobile */
+        select { text-overflow: ellipsis; }
     </style>
 </head>
 <body class="bg-stone-100 text-stone-800 min-h-screen font-sans">
@@ -34,11 +36,11 @@
                 
                 <!-- 1. Calcolatore Bianco Base -->
                 <div class="bg-white p-6 rounded-3xl shadow-sm border border-stone-200 h-fit">
-                    <h3 class="text-xl font-bold mb-6 flex items-center gap-2">⚪ Bianco Colorobbia</h3>
+                    <h3 class="text-xl font-bold mb-6 flex items-center gap-2">⚪ Base Trasparente/Bianca</h3>
                     <div class="space-y-4">
                         <div>
                             <label class="block text-xs font-bold text-stone-400 uppercase mb-2">Polvere Smalto (g)</label>
-                            <input type="number" id="powderInput" value="1000" class="w-full text-2xl font-bold p-3 bg-stone-50 border border-stone-200 rounded-2xl outline-none" oninput="saveAndRefresh()">
+                            <input type="number" id="powderInput" value="1000" class="w-full text-2xl font-bold p-3 bg-stone-50 border border-stone-200 rounded-2xl outline-none transition-all focus:ring-2 focus:ring-blue-100" oninput="saveAndRefresh()">
                         </div>
                         <div>
                             <div class="flex justify-between mb-2">
@@ -47,7 +49,7 @@
                             </div>
                             <input type="range" id="ratioSlider" min="0.55" max="0.85" step="0.01" value="0.70" class="w-full" oninput="saveAndRefresh()">
                         </div>
-                        <div class="bg-blue-600 p-6 rounded-2xl text-white text-center shadow-md">
+                        <div class="bg-blue-600 p-6 rounded-2xl text-white text-center shadow-lg transform transition hover:scale-[1.02]">
                             <p class="text-blue-100 text-xs font-bold uppercase mb-1">Acqua da Aggiungere</p>
                             <span id="waterResult" class="text-4xl font-black">700</span><span class="text-lg ml-1">g</span>
                         </div>
@@ -57,11 +59,11 @@
                 <!-- 2. Laboratorio Colori (MULTI-COLORE) -->
                 <div class="bg-white p-6 rounded-3xl shadow-sm border border-stone-200 flex flex-col min-h-[500px]">
                     <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-xl font-bold">🌈 Mix di Colori</h3>
-                        <button onclick="addColorRow()" class="text-xs font-bold bg-blue-50 text-blue-600 px-3 py-1.5 rounded-full hover:bg-blue-100 transition-colors">+ Aggiungi Colore</button>
+                        <h3 class="text-xl font-bold">🌈 Mix Colorobbia</h3>
+                        <button onclick="addColorRow()" class="text-xs font-bold bg-blue-50 text-blue-600 px-3 py-1.5 rounded-full hover:bg-blue-100 transition-colors border border-blue-100">+ Aggiungi Colore</button>
                     </div>
                     
-                    <p class="text-[10px] text-stone-400 mb-6 uppercase font-bold tracking-widest">Crea la tua ricetta personalizzata</p>
+                    <p class="text-[10px] text-stone-400 mb-6 uppercase font-bold tracking-widest">Seleziona i codici BLS/HC per il mix</p>
                     
                     <div id="colorMixList" class="space-y-3 mb-6 flex-1 overflow-y-auto max-h-[400px] pr-2 custom-scrollbar">
                         <!-- Righe aggiunte dinamicamente qui -->
@@ -69,11 +71,11 @@
 
                     <div class="mt-4 bg-stone-900 text-white p-6 rounded-2xl flex flex-col items-center relative overflow-hidden shadow-xl">
                         <div class="absolute top-0 right-0 p-3 opacity-10">
-                            <svg class="w-20 h-20 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M12 3a9 9 0 00-9 9 9 9 0 009 9 9 9 0 009-9 9 9 0 00-9-9zm0 16a7 7 0 110-14 7 7 0 010 14z"/></svg>
+                            <svg class="w-24 h-24 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M12 3a9 9 0 00-9 9 9 9 0 009 9 9 9 0 009-9 9 9 0 00-9-9zm0 16a7 7 0 110-14 7 7 0 010 14z"/></svg>
                         </div>
                         <p class="text-[10px] font-bold text-stone-400 uppercase mb-4 tracking-widest relative z-10">Risultato per <span id="totalMixGrams" class="text-blue-400">0</span>g Totali</p>
-                        <div id="mixPreview" class="w-20 h-20 rounded-full shadow-2xl border-4 border-white mb-2 relative z-10 transition-all duration-700"></div>
-                        <span id="mixHex" class="text-[10px] font-mono font-bold text-stone-500 relative z-10">#000000</span>
+                        <div id="mixPreview" class="w-24 h-24 rounded-full shadow-2xl border-4 border-white mb-2 relative z-10 transition-all duration-700 ring-4 ring-white/10"></div>
+                        <span id="mixHex" class="text-[10px] font-mono font-bold text-stone-500 relative z-10 bg-white/10 px-2 py-1 rounded">#000000</span>
                     </div>
                 </div>
             </div>
@@ -83,7 +85,7 @@
         <div id="tab-tracker" class="tab-content">
             <div class="flex justify-between items-center mb-6">
                 <h2 class="text-2xl font-bold">Registro Produzione</h2>
-                <button onclick="showAddModal()" class="bg-stone-900 text-white px-4 py-2 rounded-xl text-sm font-bold shadow-lg">+ Nuovo</button>
+                <button onclick="showAddModal()" class="bg-stone-900 text-white px-4 py-2 rounded-xl text-sm font-bold shadow-lg hover:bg-stone-800 transition-colors">+ Nuovo</button>
             </div>
             <div id="piecesContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
         </div>
@@ -123,15 +125,15 @@
     </main>
 
     <!-- Modal Progetto -->
-    <div id="addModal" class="fixed inset-0 bg-black/60 hidden z-[100] flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl p-8 w-full max-w-md shadow-2xl">
+    <div id="addModal" class="fixed inset-0 bg-black/60 hidden z-[100] flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white rounded-3xl p-8 w-full max-w-md shadow-2xl border border-white/20">
             <h3 class="text-2xl font-bold mb-6">Nuovo Progetto</h3>
             <div class="space-y-4">
-                <input type="text" id="pieceName" placeholder="Nome Modello" class="w-full p-4 bg-stone-50 border border-stone-200 rounded-2xl outline-none">
-                <input type="text" id="pieceClay" placeholder="Tipo di Argilla" class="w-full p-4 bg-stone-50 border border-stone-200 rounded-2xl outline-none">
+                <input type="text" id="pieceName" placeholder="Nome Modello" class="w-full p-4 bg-stone-50 border border-stone-200 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500">
+                <input type="text" id="pieceClay" placeholder="Tipo di Argilla" class="w-full p-4 bg-stone-50 border border-stone-200 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500">
                 <div class="flex gap-4 pt-4">
-                    <button onclick="closeAddModal()" class="flex-1 py-3 text-stone-500 font-bold">Annulla</button>
-                    <button onclick="addPiece()" class="flex-1 py-3 bg-blue-600 text-white rounded-2xl font-bold">Crea</button>
+                    <button onclick="closeAddModal()" class="flex-1 py-3 text-stone-500 font-bold hover:bg-stone-50 rounded-xl transition-colors">Annulla</button>
+                    <button onclick="addPiece()" class="flex-1 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-colors shadow-lg shadow-blue-200">Crea</button>
                 </div>
             </div>
         </div>
@@ -139,22 +141,50 @@
 
     <script>
         const STEPS = ["Modellazione", "Asciugatura", "Biscotto", "Decoro", "Smaltatura", "Cottura II", "Pronto"];
+        
+        // DATABASE COLOROBBIA ESPANSO
+        // Mappatura esadecimale approssimativa per simulazione a video
         const BASE_COLORS = [
-            { id: "#ffffff", name: "Bianco" },
-            { id: "#fef08a", name: "BLS-008900 (Limoncello)" },
-            { id: "#ef4444", name: "BLS945 (Tomato)" },
-            { id: "#2563eb", name: "Blu Cobalto" },
-            { id: "#16a34a", name: "Verde Rame" },
-            { id: "#ea580c", name: "Arancio Selenio" },
-            { id: "#7c2d12", name: "Marrone Ferro" },
-            { id: "#171717", name: "Nero Manganese" }
+            // --- BASI ---
+            { id: "#FFFFFF", name: "HC-0004 (Bianco Lucido)" },
+            { id: "#F3F4F6", name: "HC-0001 (Trasparente)" },
+            
+            // --- SERIE BELLISSIMI (BLS) ---
+            { id: "#FEF08A", name: "BLS-900 (Limoncello)" },
+            { id: "#FACC15", name: "BLS-902 (Giallo Sole)" },
+            { id: "#CA8A04", name: "BLS-903 (Giallo Ocra)" },
+            { id: "#FB923C", name: "BLS-904 (Arancio)" },
+            { id: "#EF4444", name: "BLS-905 (Rosso)" },
+            { id: "#991B1B", name: "BLS-945 (Tomato)" },
+            { id: "#F472B6", name: "BLS-906 (Rosa)" },
+            { id: "#BE185D", name: "BLS-938 (Ciclamino)" },
+            { id: "#C084FC", name: "BLS-907 (Lilla)" },
+            { id: "#7E22CE", name: "BLS-908 (Viola)" },
+            { id: "#3B82F6", name: "BLS-909 (Blu Oltremare)" },
+            { id: "#1D4ED8", name: "BLS-936 (Blu Reale)" },
+            { id: "#22D3EE", name: "BLS-910 (Turchese)" },
+            { id: "#06B6D4", name: "BLS-942 (Azzurro)" },
+            { id: "#4ADE80", name: "BLS-911 (Verde Prato)" },
+            { id: "#16A34A", name: "BLS-912 (Verde Scuro)" },
+            { id: "#15803D", name: "BLS-951 (Verde Bosco)" },
+            { id: "#84CC16", name: "BLS-932 (Verde Mela)" },
+            { id: "#D97706", name: "BLS-913 (Caramello)" },
+            { id: "#78350F", name: "BLS-914 (Marrone)" },
+            { id: "#451a03", name: "BLS-952 (Testa di Moro)" },
+            { id: "#171717", name: "BLS-915 (Nero)" },
+            { id: "#57534E", name: "BLS-941 (Grigio)" },
+
+            // --- OSSIDI PURI ---
+            { id: "#1E3A8A", name: "Ossido Cobalto (Blu Intenso)" },
+            { id: "#065F46", name: "Ossido Rame (Verde/Turchese)" },
+            { id: "#713F12", name: "Ossido Ferro (Rosso/Bruno)" },
+            { id: "#000000", name: "Ossido Manganese (Nero/Bruno)" }
         ];
 
         let state = {
             pieces: [],
             mixRows: [
-                { color: "#ffffff", grams: 500 },
-                { color: "#2563eb", grams: 500 }
+                { color: "#FFFFFF", grams: 500 }, // Default Bianco
             ],
             settings: {
                 powder: 1000,
@@ -167,21 +197,22 @@
         };
 
         // --- GESTIONE RIGHE COLORE ---
-        function addColorRow(color = "#ffffff", grams = 100) {
-            const id = Date.now() + Math.random();
+        function addColorRow(color = "#FFFFFF", grams = 100) {
             const container = document.getElementById('colorMixList');
             
             const row = document.createElement('div');
-            row.className = "flex gap-2 items-center bg-stone-50 p-3 rounded-2xl border border-stone-100 group animate-in fade-in duration-300";
+            row.className = "flex flex-col sm:flex-row gap-2 sm:items-center bg-stone-50 p-3 rounded-2xl border border-stone-100 group animate-in fade-in slide-in-from-bottom-2 duration-300";
             row.innerHTML = `
-                <select class="flex-1 p-2 bg-white border border-stone-200 rounded-xl text-xs outline-none color-select" onchange="saveAndRefresh()">
+                <select class="flex-1 p-3 bg-white border border-stone-200 rounded-xl text-sm outline-none color-select font-medium text-stone-700 focus:border-blue-300 transition-colors appearance-none" onchange="saveAndRefresh()">
                     ${BASE_COLORS.map(c => `<option value="${c.id}" ${c.id === color ? 'selected' : ''}>${c.name}</option>`).join('')}
                 </select>
                 <div class="flex items-center gap-2">
-                    <input type="number" class="w-20 p-2 border border-stone-200 rounded-xl text-center font-bold text-sm gram-input" value="${grams}" oninput="saveAndRefresh()">
-                    <span class="text-[10px] text-stone-400 font-bold uppercase">g</span>
+                    <div class="relative flex-1 sm:w-28">
+                        <input type="number" class="w-full p-3 border border-stone-200 rounded-xl text-center font-bold text-sm gram-input focus:border-blue-300 outline-none" value="${grams}" oninput="saveAndRefresh()">
+                        <span class="absolute right-3 top-3 text-xs text-stone-400 font-bold pointer-events-none">g</span>
+                    </div>
+                    <button onclick="this.closest('div.flex.flex-col').remove(); saveAndRefresh();" class="w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center rounded-xl bg-white border border-stone-200 text-stone-300 hover:text-red-500 hover:border-red-200 hover:bg-red-50 transition-all">×</button>
                 </div>
-                <button onclick="this.parentElement.remove(); saveAndRefresh();" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-red-50 text-stone-300 hover:text-red-500 transition-colors">×</button>
             `;
             container.appendChild(row);
             saveAndRefresh();
@@ -189,23 +220,23 @@
 
         // --- PERSISTENZA ---
         function loadData() {
-            const savedState = localStorage.getItem('ceramic_studio_v4_multi');
+            const savedState = localStorage.getItem('ceramic_studio_v5_full');
             if (savedState) {
                 state = JSON.parse(savedState);
                 applyStateToUI();
             } else {
-                // Initialize default rows if no saved data
                 state.mixRows.forEach(row => addColorRow(row.color, row.grams));
             }
         }
 
         function saveData() {
-            // Aggiorna mixRows estraendo i valori dalla UI
             const selects = document.querySelectorAll('.color-select');
             const inputs = document.querySelectorAll('.gram-input');
             state.mixRows = [];
             selects.forEach((sel, i) => {
-                state.mixRows.push({ color: sel.value, grams: parseFloat(inputs[i].value) || 0 });
+                if(inputs[i]) {
+                    state.mixRows.push({ color: sel.value, grams: parseFloat(inputs[i].value) || 0 });
+                }
             });
 
             state.settings = {
@@ -216,7 +247,7 @@
                 pieceWeight: document.getElementById('pieceWeight').value,
                 firingCost: document.getElementById('firingCost').value
             };
-            localStorage.setItem('ceramic_studio_v4_multi', JSON.stringify(state));
+            localStorage.setItem('ceramic_studio_v5_full', JSON.stringify(state));
         }
 
         function applyStateToUI() {
@@ -230,8 +261,11 @@
             
             const container = document.getElementById('colorMixList');
             container.innerHTML = "";
-            state.mixRows.forEach(row => addColorRow(row.color, row.grams));
-            
+            if(state.mixRows.length === 0) {
+                 addColorRow("#FFFFFF", 500); // Fallback
+            } else {
+                state.mixRows.forEach(row => addColorRow(row.color, row.grams));
+            }
             renderPieces();
         }
 
@@ -278,8 +312,8 @@
             let finalHex = "#E5E7EB";
             if (totalGrams > 0) {
                 const r = Math.round(totalR / totalGrams);
-                const g = Math.round(totalGrams > 0 ? totalG/totalGrams : 0);
-                const b = Math.round(totalGrams > 0 ? totalB/totalGrams : 0);
+                const g = Math.round(totalG > 0 ? totalG/totalGrams : 0);
+                const b = Math.round(totalG > 0 ? totalB/totalGrams : 0);
                 finalHex = "#" + [r, g, b].map(x => x.toString(16).padStart(2, '0')).join('').toUpperCase();
             }
             
@@ -295,8 +329,8 @@
         }
 
         // --- TRACKER PROGETTI ---
-        function showAddModal() { document.getElementById('addModal').classList.remove('hidden'); }
-        function closeAddModal() { document.getElementById('addModal').classList.add('hidden'); }
+        function showAddModal() { document.getElementById('addModal').classList.remove('hidden'); document.getElementById('addModal').classList.add('flex'); }
+        function closeAddModal() { document.getElementById('addModal').classList.add('hidden'); document.getElementById('addModal').classList.remove('flex'); }
 
         function addPiece() {
             const name = document.getElementById('pieceName').value;
@@ -326,25 +360,27 @@
             const cont = document.getElementById('piecesContainer');
             if (!cont) return;
             if (state.pieces.length === 0) {
-                cont.innerHTML = `<div class="col-span-full text-center py-20 bg-white rounded-3xl border-2 border-dashed border-stone-200 text-stone-400">Nessun progetto attivo.</div>`;
+                cont.innerHTML = `<div class="col-span-full text-center py-20 bg-white rounded-3xl border-2 border-dashed border-stone-200 text-stone-400">Nessun progetto attivo.<br><span class="text-xs mt-2 block">Clicca "+ Nuovo" per iniziare</span></div>`;
                 return;
             }
             cont.innerHTML = state.pieces.map(p => `
-                <div class="bg-white p-6 rounded-3xl border border-stone-200 shadow-sm transition-all hover:shadow-md">
+                <div class="bg-white p-6 rounded-3xl border border-stone-200 shadow-sm transition-all hover:shadow-md hover:translate-y-[-2px]">
                     <div class="flex justify-between items-start mb-4">
                         <div>
                             <h4 class="font-bold text-stone-900">${p.name}</h4>
-                            <p class="text-[10px] text-stone-400 font-extrabold uppercase">${p.clay}</p>
+                            <p class="text-[10px] text-stone-400 font-extrabold uppercase tracking-widest">${p.clay}</p>
                         </div>
-                        <button onclick="deletePiece(${p.id})" class="text-stone-300 hover:text-red-500">×</button>
+                        <button onclick="deletePiece(${p.id})" class="text-stone-300 hover:text-red-500 transition-colors text-xl font-light px-2">×</button>
                     </div>
-                    <div class="h-1.5 bg-stone-100 rounded-full mb-6">
-                        <div class="h-full bg-blue-500 rounded-full transition-all duration-700" style="width: ${(p.step/6)*100}%"></div>
+                    <div class="h-2 bg-stone-100 rounded-full mb-6 overflow-hidden">
+                        <div class="h-full bg-blue-500 rounded-full transition-all duration-700 ease-out" style="width: ${(p.step/6)*100}%"></div>
                     </div>
                     <div class="flex items-center gap-2">
-                        <button onclick="updateStep(${p.id},-1)" class="flex-1 py-2 text-xs border rounded-xl hover:bg-stone-50 transition-colors">←</button>
-                        <span class="text-[10px] font-bold text-blue-500 uppercase px-1 text-center flex-1">${STEPS[p.step]}</span>
-                        <button onclick="updateStep(${p.id},1)" class="flex-1 py-2 text-xs bg-stone-900 text-white rounded-xl hover:bg-stone-800 transition-colors">→</button>
+                        <button onclick="updateStep(${p.id},-1)" class="w-10 h-10 flex items-center justify-center border border-stone-200 rounded-xl hover:bg-stone-50 transition-colors text-stone-500">←</button>
+                        <div class="flex-1 text-center bg-stone-50 rounded-xl py-2.5">
+                            <span class="text-[10px] font-bold text-blue-600 uppercase block leading-tight">${STEPS[p.step]}</span>
+                        </div>
+                        <button onclick="updateStep(${p.id},1)" class="w-10 h-10 flex items-center justify-center bg-stone-900 text-white rounded-xl hover:bg-stone-800 transition-colors shadow-lg shadow-stone-200">→</button>
                     </div>
                 </div>
             `).join('');
